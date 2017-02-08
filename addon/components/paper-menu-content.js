@@ -4,7 +4,7 @@
 import Ember from 'ember';
 import ContentComponent from 'ember-basic-dropdown/components/basic-dropdown/content';
 import { nextTick } from 'ember-css-transitions/mixins/transition-mixin';
-const { $, computed, String: { htmlSafe } } = Ember;
+const { $, computed, String: { htmlSafe }, isPresent } = Ember;
 const MutObserver = window.MutationObserver || window.WebKitMutationObserver;
 
 function waitForAnimations(element, callback) {
@@ -32,27 +32,37 @@ function waitForAnimations(element, callback) {
  */
 export default ContentComponent.extend({
 
+  // TODO: Figure out why the top and left properties on this component are
+  // being set to, for example, '10pxpx' instead of just being '10px'.
+  computedTop: computed('top', function() {
+    const top = this.get('top');
+    if (isPresent(top)) {
+      return top.replace('px', '');
+    } else {
+      return top;
+    }
+  }),
+
+  computedLeft: computed('left', function() {
+    const left = this.get('left');
+    if (isPresent(left)) {
+      return left.replace('px', '');
+    } else {
+      return left;
+    }
+  }),
+
   // We need to overwrite this CP because:
   //   1. we don't want to use the width property
   //   2. we need additional styles
-  parsedTop: computed('top', function() {
-    if (Ember.isEmpty(this.get('top'))) { return this.get('top'); }
-    return this.get('top').replace('px', '');
-  }),
-
-  parsedLeft: computed('left', function() {
-    if (Ember.isEmpty(this.get('left'))) { return this.get('left'); }
-    return this.get('left').replace('px', '');
-  }),
-
   style: computed('top', 'left', 'right', 'transform', 'transformOrigin', function() {
     let style = '';
-    let { parsedTop, parsedLeft, right, transform, transformOrigin } = this.getProperties('parsedTop', 'parsedLeft', 'right', 'transform', 'transformOrigin');
-    if (parsedTop) {
-      style += `top: ${parsedTop};`;
+    let { computedTop, computedLeft, right, transform, transformOrigin } = this.getProperties('computedTop', 'computedLeft', 'right', 'transform', 'transformOrigin');
+    if (computedTop) {
+      style += `top: ${computedTop};`;
     }
-    if (parsedLeft) {
-      style += `left: ${parsedLeft};`;
+    if (computedLeft) {
+      style += `left: ${computedLeft};`;
     }
     if (right) {
       style += `right: ${right};`;
