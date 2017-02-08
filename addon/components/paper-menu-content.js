@@ -35,14 +35,24 @@ export default ContentComponent.extend({
   // We need to overwrite this CP because:
   //   1. we don't want to use the width property
   //   2. we need additional styles
+  parsedTop: computed('top', function() {
+    if (Ember.isEmpty(this.get('top'))) { return this.get('top'); }
+    return this.get('top').replace('px', '');
+  }),
+
+  parsedLeft: computed('left', function() {
+    if (Ember.isEmpty(this.get('left'))) { return this.get('left'); }
+    return this.get('left').replace('px', '');
+  }),
+
   style: computed('top', 'left', 'right', 'transform', 'transformOrigin', function() {
     let style = '';
-    let { top, left, right, transform, transformOrigin } = this.getProperties('top', 'left', 'right', 'transform', 'transformOrigin');
-    if (top) {
-      style += `top: ${top};`;
+    let { parsedTop, parsedLeft, right, transform, transformOrigin } = this.getProperties('parsedTop', 'parsedLeft', 'right', 'transform', 'transformOrigin');
+    if (parsedTop) {
+      style += `top: ${parsedTop};`;
     }
-    if (left) {
-      style += `left: ${left};`;
+    if (parsedLeft) {
+      style += `left: ${parsedLeft};`;
     }
     if (right) {
       style += `right: ${right};`;
